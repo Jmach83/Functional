@@ -53,9 +53,9 @@ putCounter : Cmd Msg
 putCounter =
     let
       request = Http.request
-        { method = "GET"
+        { method = "PUT"
         , headers = []
-        , url = "http://localhost:3000/api/3"
+        , url = "http://localhost:3000/api/0"
         , body = Http.emptyBody
         , expect = Http.expectJson decodeUrl
         , timeout = Nothing
