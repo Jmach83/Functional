@@ -11,14 +11,14 @@ public class Cpu {
   private int sp = 0;
   private boolean flag = false;
   private boolean running = true;
-  
-  public boolean isRunning(){
-      return running;
-  }
-  
-  public void setRunning(boolean running) {
-      this.running = running;
-  }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
   
   public void decSp() {
     if (sp == 0) sp = 64;
@@ -29,6 +29,11 @@ public class Cpu {
     ip++;
     if (ip == 64) ip = 0;
     }
+  
+  public void incSP() {
+      sp++;
+      if(sp == 64) sp = 0;
+  }
 
   public int getA() {
     return a;
