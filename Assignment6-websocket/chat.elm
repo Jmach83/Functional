@@ -6,7 +6,7 @@ import List
 import Json.Decode as Decode
 import Json.Encode as Encode
 
-main : Program Never Model Msg
+main : Program Never Model Msg --Annotatiom says main has type program and should never expect flags argument
 main =
   program
   { init = init
@@ -22,7 +22,7 @@ type alias Model =
   , username : String
   }
 
-init : (Model, Cmd Msg)
+init : (Model, Cmd Msg) -- (Cmd) are how we tell the runtime to execute things that involve side effects. For example:
 init =
   ( Model [] "" ""
   , Cmd.none
@@ -41,7 +41,7 @@ type Msg
   | NewChatMessage String
   | PostLogin
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> (Model, Cmd Msg)--retunere model der skal "cmd" med Msg (fortælle runtime noget skal ændres)
 update msg model =
   case msg of
     PostChatMessage ->
@@ -85,25 +85,29 @@ view model =
     , autofocus True
     , value model.username
     , onInput UpdateUserName
+    , style [ ("margin-left", "5px") ]
     ] []
     , button [ onClick PostLogin ] [ text "Login" ]
-    , div [] (List.reverse (List.map showMessage  model.chatMessage))
+    , div [ chatBoxStyle ] (List.reverse (List.map showMessage  model.chatMessage))
     , input [ placeholder "Message..."
-            , autofocus True
-            , value model.userMessage
+            , value model.userMessage  --value af typen string(userMessage) bliver brugt i onInput
             , onInput UpdateUserMessage
+            , style [ ("margin-left", "5px") ]
             ] []
     , button [ onClick PostChatMessage ] [ text "Submit" ]
   ]
 
---chatBoxStyle : Attribute
---chatBoxStyle =
-  --style
-    --[ ("width", "300px")
-    --, ("border", "25px", "solid")
-    --, ("padding" "10px")
-    --, ("margin" "25px")
-    --]
+chatBoxStyle : Attribute msg
+chatBoxStyle =
+  style
+    [ ("border-width", "1px")
+    , ("border-style", "solid")
+    , ("width", "300px")
+    , ("height", "300px")
+    , ("padding", "10px")
+    , ("margin", "5px")
+    , ("border-color", "darkblue")
+    ]
 
 showMessage : String -> Html msg
 showMessage msg =
