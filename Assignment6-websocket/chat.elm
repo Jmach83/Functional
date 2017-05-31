@@ -20,11 +20,12 @@ type alias Model =
   { chatMessage : List String
   , userMessage : String
   , username : String
+  , userList : List String
   }
 
 init : (Model, Cmd Msg) -- (Cmd) are how we tell the runtime to execute things that involve side effects. For example:
 init =
-  ( Model [] "" ""
+  ( Model [] "" "" []
   , Cmd.none
   )
 
@@ -40,6 +41,7 @@ type Msg
   | UpdateUserName String
   | NewChatMessage String
   | PostLogin
+  | LogoutUser
 
 update : Msg -> Model -> (Model, Cmd Msg)--retunere model der skal "cmd" med Msg (fortælle runtime noget skal ændres)
 update msg model =
@@ -68,8 +70,20 @@ update msg model =
     UpdateUserName message ->
       { model | username = message } ! []
 
+    LogoutUser ->
+      { model | userList = [] } ! []
+
     NewChatMessage message -> --Case message of (login or send)
-        { model | chatMessage = jsonToString (Decode.decodeString (Decode.field "content" Decode.string) message) :: model.chatMessage } ! []
+      let
+        command = jsonToString (Decode.decodeString (Decode.field "command" Decode.string) message)
+      in
+       case command of
+         "login" -> { model | userList = [jsonToString (Decode.decodeString (Decode.field "content" Decode.string) message)] } ! []
+         "send" -> { model | chatMessage = jsonToString (Decode.decodeString (Decode.field "content" Decode.string) message) :: model.chatMessage } ! []
+         _ -> { model | chatMessage =  ["Something went wrong, try again"] } ! []
+
+
+
 
 jsonToString : Result String String -> String
 jsonToString result =
@@ -85,17 +99,46 @@ view model =
     , autofocus True
     , value model.username
     , onInput UpdateUserName
-    , style [ ("margin-left", "5px") ]
+    , hidden (showLogIn model.userList)
+    , inputStyle
     ] []
-    , button [ onClick PostLogin ] [ text "Login" ]
+    , button [ onClick PostLogin, hidden (showLogIn model.userList)] [ text "Login" ]
+  --  , showLoggedIn model.userList
+    --, div [] (List.map showUser model.userList)
+    , button [ onClick LogoutUser ] [text "Logout"]
     , div [ chatBoxStyle ] (List.reverse (List.map showMessage  model.chatMessage))
     , input [ placeholder "Message..."
             , value model.userMessage  --value af typen string(userMessage) bliver brugt i onInput
             , onInput UpdateUserMessage
-            , style [ ("margin-left", "5px") ]
+            , inputStyle
             ] []
     , button [ onClick PostChatMessage ] [ text "Submit" ]
   ]
+
+showUser : String -> Html msg
+showUser msg =
+  div [] [text msg, button [] [text "Logout"]]
+
+showMessage : String -> Html msg
+showMessage msg =
+  div [] [text msg]
+
+showLogout : List String -> Bool
+showLogout list =
+  case List.isEmpty list of
+    True -> True
+    False -> False
+
+showLogIn : List String -> Bool
+showLogIn list =
+  case List.isEmpty list of
+    True -> False
+    False -> True
+
+  --STYLING
+inputStyle : Attribute msg
+inputStyle =
+  style [ ("margin-left", "5px") ]
 
 chatBoxStyle : Attribute msg
 chatBoxStyle =
@@ -108,10 +151,6 @@ chatBoxStyle =
     , ("margin", "5px")
     , ("border-color", "darkblue")
     ]
-
-showMessage : String -> Html msg
-showMessage msg =
-  div [] [text msg]
 
  -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
