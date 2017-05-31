@@ -94,7 +94,8 @@ jsonToString result =
 -- VIEW
 view : Model -> Html Msg
 view model =
-  div []
+  div [ style
+    [ ("padding", "2px")]]
     [ input [ placeholder "Username"
     , autofocus True
     , value model.username
@@ -104,8 +105,9 @@ view model =
     ] []
     , button [ onClick PostLogin, hidden (showLogIn model.userList)] [ text "Login" ]
   --  , showLoggedIn model.userList
-    --, div [] (List.map showUser model.userList)
-    , button [ onClick LogoutUser ] [text "Logout"]
+  --  , div [] (List.map showUser model.userList LogoutUser)--model.userList er en string på grund af list.map
+    , div [] (List.map showUser model.userList)
+    , button [ onClick LogoutUser, hidden (showLogout model.userList) ] [text "Logout"]
     , div [ chatBoxStyle ] (List.reverse (List.map showMessage  model.chatMessage))
     , input [ placeholder "Message..."
             , value model.userMessage  --value af typen string(userMessage) bliver brugt i onInput
@@ -116,8 +118,8 @@ view model =
   ]
 
 showUser : String -> Html msg
-showUser msg =
-  div [] [text msg, button [] [text "Logout"]]
+showUser user =
+  div [] [text user]
 
 showMessage : String -> Html msg
 showMessage msg =
