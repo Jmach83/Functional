@@ -23,16 +23,11 @@ type alias Model =
   , userList : List String
   }
 
-init : (Model, Cmd Msg) -- (Cmd) are how we tell the runtime to execute things that involve side effects. For example:
+init : (Model, Cmd Msg)
 init =
   ( Model [] "" "" []
   , Cmd.none
   )
-
---type alias ChatMessage =
-  --{ command: String
-  --, content: String
-  --}
 
 -- UPDATE
 type Msg
@@ -43,7 +38,7 @@ type Msg
   | PostLogin
   | LogoutUser
 
-update : Msg -> Model -> (Model, Cmd Msg)--retunere model der skal "cmd" med Msg (fortælle runtime noget skal ændres)
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     PostChatMessage ->
@@ -73,7 +68,7 @@ update msg model =
     LogoutUser ->
       { model | userList = [] } ! []
 
-    NewChatMessage message -> --Case message of (login or send)
+    NewChatMessage message ->
       let
         command = jsonToString (Decode.decodeString (Decode.field "command" Decode.string) message)
       in
@@ -95,7 +90,7 @@ jsonToString result =
 view : Model -> Html Msg
 view model =
   div [ style
-    [ ("padding", "2px")]]
+    [ ("margin", "2px")]]
     [ input [ placeholder "Username"
     , autofocus True
     , value model.username
@@ -104,13 +99,11 @@ view model =
     , inputStyle
     ] []
     , button [ onClick PostLogin, hidden (showLogIn model.userList)] [ text "Login" ]
-  --  , showLoggedIn model.userList
-  --  , div [] (List.map showUser model.userList LogoutUser)--model.userList er en string på grund af list.map
     , div [] (List.map showUser model.userList)
     , button [ onClick LogoutUser, hidden (showLogout model.userList) ] [text "Logout"]
     , div [ chatBoxStyle ] (List.reverse (List.map showMessage  model.chatMessage))
     , input [ placeholder "Message..."
-            , value model.userMessage  --value af typen string(userMessage) bliver brugt i onInput
+            , value model.userMessage
             , onInput UpdateUserMessage
             , inputStyle
             ] []
@@ -119,7 +112,10 @@ view model =
 
 showUser : String -> Html msg
 showUser user =
-  div [] [text user]
+  let
+   userString = "Logged in as: " ++ user
+  in
+   div [] [text userString]
 
 showMessage : String -> Html msg
 showMessage msg =
